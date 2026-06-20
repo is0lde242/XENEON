@@ -61,17 +61,12 @@
   </div>
 
   <script>
-    const API_URL = 'https://api.goldapi.io/api/spot/gold/USD';
-    const API_KEY = ''; // Optional: Add your GoldAPI key if you have one
+    // Use a free, CORS-friendly API
+    const API_URL = 'https://api.metals.dev/v1/spot/gold/USD';
 
     async function fetchGoldPrice() {
       try {
-        const response = await fetch(API_URL, {
-          headers: {
-            'x-access-token': API_KEY,
-            'Content-Type': 'application/json'
-          }
-        });
+        const response = await fetch(API_URL);
         const data = await response.json();
 
         if (data && data.price) {
@@ -95,7 +90,6 @@
       }
     }
 
-    // Fetch immediately and every 60 seconds
     fetchGoldPrice();
     setInterval(fetchGoldPrice, 60000);
   </script>
