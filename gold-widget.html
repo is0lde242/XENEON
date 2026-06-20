@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=2560, initial-scale=1.0">
+  <title>Gold Spot Price</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #121212;
+      color: #e0e0e0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      width: 100vw;
+      overflow: hidden;
+    }
+    .container {
+      text-align: center;
+      width: 100%;
+      max-width: 800px;
+    }
+    .label {
+      font-size: 32px;
+      opacity: 0.8;
+      margin-bottom: 10px;
+    }
+    .price {
+      font-size: 120px;
+      font-weight: bold;
+      color: #FFD700;
+      text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+      letter-spacing: -2px;
+    }
+    .details {
+      font-size: 24px;
+      margin-top: 10px;
+      opacity: 0.7;
+    }
+    .error {
+      color: #ff5555;
+      font-size: 24px;
+    }
+    .timestamp {
+      font-size: 18px;
+      opacity: 0.5;
+      margin-top: 5px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="label">Gold Spot Price (XAU/USD)</div>
+    <div class="price" id="price">--</div>
+    <div class="details" id="details">Loading...</div>
+    <div class="timestamp" id="timestamp"></div>
+  </div>
+
+  <script>
+    const API_URL = 'https://api.goldapi.io/api/spot/gold/USD';
+    const API_KEY = ''; // Optional: Add your GoldAPI key if you have one
+
+    async function fetchGoldPrice() {
+      try {
+        const response = await fetch(API_URL, {
+          headers: {
+            'x-access-token': API_KEY,
+            'Content-Type': 'application/json'
+          }
+        });
+        const data = await response.json();
+
+        if (data && data.price) {
+          const price = data.price.toFixed(2);
+          const change = data.change_24h ? data.change_24h.toFixed(2) : '0.00';
+          const changePct = data.change_24h_pct ? data.change_24h_pct.toFixed(2) : '0.00';
+          const timestamp = new Date(data.timestamp * 1000).toLocaleTimeString();
+
+          document.getElementById('price').textContent = `$${price}`;
+          document.getElementById('details').innerHTML = 
+            `24h: ${change > 0 ? '+' : ''}${change} (${change > 0 ? '+' : ''}${changePct}%)`;
+          document.getElementById('timestamp').textContent = `Updated: ${timestamp}`;
+        } else {
+          throw new Error('Invalid data');
+        }
+      } catch (error) {
+        document.getElementById('price').textContent = 'ERROR';
+        document.getElementById('details').textContent = 'Failed to fetch price';
+        document.getElementById('timestamp').textContent = 'Retrying...';
+        console.error('Error fetching gold price:', error);
+      }
+    }
+
+    // Fetch immediately and every 60 seconds
+    fetchGoldPrice();
+    setInterval(fetchGoldPrice, 60000);
+  </script>
+</body>
+</html>
