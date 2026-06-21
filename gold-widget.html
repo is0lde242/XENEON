@@ -35,22 +35,22 @@
   </div>
 
   <script>
-    // CoinGecko API (free, CORS-enabled, no key)
-    const API_URL = 'https://api.coingecko.com/api/v3/simple/price?ids=gold&vs_currencies=usd&include_24hr_change=true';
+    // Alpha Vantage API (free, demo key works)
+    const API_KEY = 'demo'; // Replace with your free key from alphavantage.co
+    const API_URL = `https://www.alphavantage.co/query?function=CURRENCY_EXCHANGE_RATE&from_currency=XAU&to_currency=USD&apikey=${API_KEY}`;
 
     async function fetchGoldPrice() {
       try {
         const response = await fetch(API_URL);
         const data = await response.json();
 
-        if (data && data.gold && data.gold.usd) {
-          const price = data.gold.usd.toFixed(2);
-          const change24h = data.gold.usd_24h_change ? data.gold.usd_24h_change.toFixed(2) : '0.00';
+        if (data && data['Realtime Currency Exchange Rate']) {
+          const rate = data['Realtime Currency Exchange Rate'];
+          const price = parseFloat(rate['5. Exchange Rate']).toFixed(2);
           const timestamp = new Date().toLocaleTimeString();
 
           document.getElementById('price').textContent = `$${price}`;
-          document.getElementById('details').innerHTML =
-            `24h: ${change24h > 0 ? '+' : ''}${change24h}%`;
+          document.getElementById('details').textContent = 'Live rate';
           document.getElementById('timestamp').textContent = `Updated: ${timestamp}`;
         } else {
           throw new Error('Invalid data');
@@ -64,7 +64,7 @@
     }
 
     fetchGoldPrice();
-    setInterval(fetchGoldPrice, 60000);
+    setInterval(fetchGoldPrice, 300000); // Refresh every 5 minutes (Alpha Vantage free tier limit)
   </script>
 </body>
 </html>
