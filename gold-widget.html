@@ -35,24 +35,22 @@
   </div>
 
   <script>
-    // Use a CORS proxy + GoldAPI (free, no key)
-    const PROXY = 'https://api.allorigins.win/raw?url=';
-    const API_URL = encodeURIComponent('https://api.goldapi.io/api/spot/gold/USD');
+    // CoinGecko API (free, CORS-enabled, no key)
+    const API_URL = 'https://api.coingecko.com/api/v3/simple/price?ids=gold&vs_currencies=usd&include_24hr_change=true';
 
     async function fetchGoldPrice() {
       try {
-        const response = await fetch(PROXY + API_URL);
+        const response = await fetch(API_URL);
         const data = await response.json();
 
-        if (data && data.price) {
-          const price = data.price.toFixed(2);
-          const change = data.change_24h ? data.change_24h.toFixed(2) : '0.00';
-          const changePct = data.change_24h_pct ? data.change_24h_pct.toFixed(2) : '0.00';
-          const timestamp = new Date(data.timestamp * 1000).toLocaleTimeString();
+        if (data && data.gold && data.gold.usd) {
+          const price = data.gold.usd.toFixed(2);
+          const change24h = data.gold.usd_24h_change ? data.gold.usd_24h_change.toFixed(2) : '0.00';
+          const timestamp = new Date().toLocaleTimeString();
 
           document.getElementById('price').textContent = `$${price}`;
           document.getElementById('details').innerHTML =
-            `24h: ${change > 0 ? '+' : ''}${change} (${change > 0 ? '+' : ''}${changePct}%)`;
+            `24h: ${change24h > 0 ? '+' : ''}${change24h}%`;
           document.getElementById('timestamp').textContent = `Updated: ${timestamp}`;
         } else {
           throw new Error('Invalid data');
@@ -68,7 +66,5 @@
     fetchGoldPrice();
     setInterval(fetchGoldPrice, 60000);
   </script>
-</body>
-</html>
 </body>
 </html>
