@@ -35,20 +35,21 @@
   </div>
 
   <script>
-    // Public CORS proxy + GoldAPI (no key required)
-    const PROXY = 'https://thingproxy.freeboard.io/fetch/';
-    const API_URL = 'https://api.goldapi.io/api/spot/gold/USD';
+    // Yahoo Finance API (CORS-friendly, no key)
+    const API_URL = 'https://query1.finance.yahoo.com/v8/finance/chart/GC=F?interval=1m';
 
     async function fetchGoldPrice() {
       try {
-        const response = await fetch(PROXY + API_URL);
+        const response = await fetch(API_URL);
         const data = await response.json();
 
-        if (data && data.price) {
-          const price = data.price.toFixed(2);
-          const change = data.change_24h ? data.change_24h.toFixed(2) : '0.00';
-          const changePct = data.change_24h_pct ? data.change_24h_pct.toFixed(2) : '0.00';
-          const timestamp = new Date(data.timestamp * 1000).toLocaleTimeString();
+        if (data && data.chart && data.chart.result && data.chart.result[0]) {
+          const result = data.chart.result[0];
+          const meta = result.meta;
+          const price = meta.regularMarketPrice.toFixed(2);
+          const change = meta.regularMarketChange.toFixed(2);
+          const changePct = meta.regularMarketChangePercent.toFixed(2);
+          const timestamp = new Date(meta.regularMarketTime * 1000).toLocaleTimeString();
 
           document.getElementById('price').textContent = `$${price}`;
           document.getElementById('details').innerHTML =
