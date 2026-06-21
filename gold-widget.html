@@ -35,22 +35,24 @@
   </div>
 
   <script>
-    // Alpha Vantage API (free, demo key works)
-    const API_KEY = 'demo'; // Replace with your free key from alphavantage.co
-    const API_URL = `https://www.alphavantage.co/query?function=CURRENCY_EXCHANGE_RATE&from_currency=XAU&to_currency=USD&apikey=${API_KEY}`;
+    // Public CORS proxy + GoldAPI (no key required)
+    const PROXY = 'https://thingproxy.freeboard.io/fetch/';
+    const API_URL = 'https://api.goldapi.io/api/spot/gold/USD';
 
     async function fetchGoldPrice() {
       try {
-        const response = await fetch(API_URL);
+        const response = await fetch(PROXY + API_URL);
         const data = await response.json();
 
-        if (data && data['Realtime Currency Exchange Rate']) {
-          const rate = data['Realtime Currency Exchange Rate'];
-          const price = parseFloat(rate['5. Exchange Rate']).toFixed(2);
-          const timestamp = new Date().toLocaleTimeString();
+        if (data && data.price) {
+          const price = data.price.toFixed(2);
+          const change = data.change_24h ? data.change_24h.toFixed(2) : '0.00';
+          const changePct = data.change_24h_pct ? data.change_24h_pct.toFixed(2) : '0.00';
+          const timestamp = new Date(data.timestamp * 1000).toLocaleTimeString();
 
           document.getElementById('price').textContent = `$${price}`;
-          document.getElementById('details').textContent = 'Live rate';
+          document.getElementById('details').innerHTML =
+            `24h: ${change > 0 ? '+' : ''}${change} (${change > 0 ? '+' : ''}${changePct}%)`;
           document.getElementById('timestamp').textContent = `Updated: ${timestamp}`;
         } else {
           throw new Error('Invalid data');
@@ -64,7 +66,7 @@
     }
 
     fetchGoldPrice();
-    setInterval(fetchGoldPrice, 300000); // Refresh every 5 minutes (Alpha Vantage free tier limit)
+    setInterval(fetchGoldPrice, 60000);
   </script>
 </body>
 </html>
